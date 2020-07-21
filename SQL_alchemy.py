@@ -4,7 +4,7 @@ Created on Tue Jul 21 02:32:34 2020
 
 @author: gcapote
 """
-
+import psycopg2
 from sqlalchemy import MetaData
 metadata = MetaData()
 
@@ -91,6 +91,7 @@ result = connection.execute(ins, cookie_name='dark chocolate chip',
 
 result.inserted_primary_key
 
+# _______________________________
 
 inventory_list = [
     {
@@ -108,3 +109,65 @@ inventory_list = [
         'unit_cost': '1.00'
     }
 ]
+
+result = connection.execute(ins, inventory_list)
+
+# ___________________________________
+
+
+from sqlalchemy.sql import select
+
+s = select([cookies])
+
+str(s)
+
+## ___________________________
+
+rp = connection.execute(s)
+
+
+
+results = rp.fetchall()
+
+first_row = results[0]
+
+
+first_row[3]
+
+first_row.cookie_name
+
+first_row[cookies.c.cookie_name]
+
+# ____________________
+
+s = cookies.select()
+
+rp = connection.execute(s)
+
+
+for record in rp:
+    print(record.cookie_name)
+# ________________________________
+    
+s = select([cookies.c.cookie_name, cookies.c.quantity])
+rp = connection.execute(s)
+print(rp.keys())
+results = rp.fetchall()
+
+results
+# _________________________________________
+
+s = select([cookies.c.cookie_name, cookies.c.quantity])
+s = s.order_by(cookies.c.quantity, cookies.c.cookie_name)
+rp = connection.execute(s)
+for cookie in rp:
+    print('{} - {}'.format(cookie.quantity, cookie.cookie_name))
+
+## ________________________________________
+    
+from sqlalchemy import desc
+s = select([cookies.c.cookie_name, cookies.c.quantity])
+s = s.order_by(desc(cookies.c.quantity))
+rp = connection.execute(s)
+for cookie in rp:
+    print('{} - {}'.format(cookie.quantity, cookie.cookie_name))
